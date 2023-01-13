@@ -16,7 +16,8 @@ binance = ccxt.binance(config={
     'enableRateLimit':True
 })
 
-since = binance.parse8601('2020-01-01 00:00:00')
+# df 준비
+since = binance.parse8601('2022-01-01 00:00:00')
 btc_ohlcv = binance.fetch_ohlcv(ticker, '4h', since=since, limit=1000)
 
 df = pd.DataFrame(btc_ohlcv, columns=['datetime', 'open', 'high', 'low', 'close', 'volume'])
@@ -28,6 +29,7 @@ multi1 = 3
 period2 = 7
 multi2 = 6
 
+# supertrendcloud 데이터 준비
 df = supertrendcloud(df, period1, period2, multi1, multi2)
 
 
@@ -46,17 +48,19 @@ cond_sell_long = ((df[f'trend_{period1}_{multi1}'] >= df['open']) &
 cond_sell_short = ((df[f'trend_{period1}_{multi1}'] <= df['open']) & 
                    (df[f'trend_{period2}_{multi2}'] >= df['open']))
 
+# 포지션 진입 시기 list
 buy = []
+# 포지션 청산 시기 list
 sell = []
 acc_ror = 1
 sell_date = None
 
+# long, short을 위한 direction 설정
 df.loc[cond_buy_long, 'dir'] = 'l'
 df.loc[cond_buy_short, 'dir'] = 's'
 
 buy_time = df.index[cond_buy_long | cond_buy_short]
 dirs = df.loc[cond_buy_long | cond_buy_short, 'dir']
-
 
 
 # 수익률 계산
@@ -68,6 +72,7 @@ for buy_date, dir in zip(buy_time, dirs):
     
     print(f'------------------------ buy_date : {buy_date}')
 
+    # long, short일 때 청산 조건 설정
     if dir == 'l':
         sell_candidate = df.index[cond_sell_long]
         inverse_candidate = df.index[cond_buy_short]
@@ -88,11 +93,12 @@ for buy_date, dir in zip(buy_time, dirs):
     sell.append([sell_date])
     print(f'------------------------ sell_date : {sell_date}, dir : {dir}')
     
+    # 수익률 계산
     if dir == 'l':
         acc_ror *= df.loc[sell_date, 'open'] / df.loc[buy_date, 'open']
     elif dir == 's':
         acc_ror *= df.loc[buy_date, 'open'] / df.loc[sell_date, 'open']
-    acc_ror *= 1.005
+    acc_ror *= 0.995
     print(acc_ror)
 
 
@@ -106,7 +112,7 @@ sell_history = pd.DataFrame([np.nan]*len(df), columns=['open'], index=df.index)
 for s in sell:
     sell_history.loc[s, 'open'] = df.loc[s, 'open']
 
-## candle, trend, 포지션 진입, 청산
+## candle, trend, 포지션 진입, 청산 시각화 추가
 adps = {"trend1" : mpl.make_addplot(df[f'trend_{period1}_{multi1}']),
         "trend2" : mpl.make_addplot(df[f'trend_{period2}_{multi2}']),
         "buy" : mpl.make_addplot(buy_history['open'], type='scatter'),
