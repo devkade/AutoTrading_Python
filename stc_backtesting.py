@@ -16,8 +16,8 @@ binance = ccxt.binance(config={
     'enableRateLimit':True
 })
 
-since = binance.parse8601('2018-01-01 00:00:00')
-btc_ohlcv = binance.fetch_ohlcv(ticker, '4h', since=since, limit=2000)
+since = binance.parse8601('2020-01-01 00:00:00')
+btc_ohlcv = binance.fetch_ohlcv(ticker, '4h', since=since, limit=1000)
 
 df = pd.DataFrame(btc_ohlcv, columns=['datetime', 'open', 'high', 'low', 'close', 'volume'])
 df['datetime'] = pd.to_datetime(df['datetime'], unit='ms')
@@ -54,8 +54,6 @@ sell_date = None
 df.loc[cond_buy_long, 'dir'] = 'l'
 df.loc[cond_buy_short, 'dir'] = 's'
 
-print(df.tail(30))
-
 buy_time = df.index[cond_buy_long | cond_buy_short]
 dirs = df.loc[cond_buy_long | cond_buy_short, 'dir']
 
@@ -67,6 +65,7 @@ for buy_date, dir in zip(buy_time, dirs):
     if sell_date!=None and (buy_date <= sell_date):
         continue
     buy.append([buy_date])
+    
     print(f'------------------------ buy_date : {buy_date}')
 
     if dir == 'l':
@@ -93,6 +92,7 @@ for buy_date, dir in zip(buy_time, dirs):
         acc_ror *= df.loc[sell_date, 'open'] / df.loc[buy_date, 'open']
     elif dir == 's':
         acc_ror *= df.loc[buy_date, 'open'] / df.loc[sell_date, 'open']
+    acc_ror *= 1.005
     print(acc_ror)
 
 
