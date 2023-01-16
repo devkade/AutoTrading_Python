@@ -45,7 +45,8 @@ def get_ohlcv(exchange='upbit', ticker = 'KRW-BTC', n=1, target_time=None): #코
     df = df.sort_index()
     return df
 
-def get_mdd(ror: list, window=20):
+# 수익률의 최대낙폭
+def mdd(ror: list, window=20):
     ror = pd.Series(ror)
     maximum = ror.rolling(len(ror), min_periods=1).max()
     dd = (ror - maximum) / maximum
@@ -60,6 +61,7 @@ def hpr(ror: list):
 def Ahpr(ror: list, period: float):
     return ((1+hpr(ror))**(1/period)-1)*100
 
+# 거래 기간 확인 위해 사용
 def tdelta2year(index: pd.DatetimeIndex):
     return (index[-1]-index[0]).days/365.2425
 
@@ -67,6 +69,7 @@ def tdelta2year(index: pd.DatetimeIndex):
 def cagr(ror: list, period: float):
     return ((ror[-1]/1)**(1/period)-1)*100
 
+# 승률 -> 각 거래마다 수익 얻으면 승 아니면 패
 def win_rate(win_rate: list):
     num_trade = len(win_rate)
     win_trade = win_rate.count(1)

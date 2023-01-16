@@ -140,7 +140,7 @@ def get_ror_stc(df, period1, period2, multi1, multi2):
 ########################################################################
 # ror_list, buy_history, sell_history, win_rate = get_ror_stc(df, period1, period2, multi1, multi2)
 # period = utils.tdelta2year(df.index)
-# mdd, dd = utils.get_mdd(ror_list)
+# mdd, dd = utils.mdd(ror_list)
 # cagr = utils.cagr(ror_list, period)
 # print(f"--------------------period : {period:.3f} year")
 # print(f"--------------------MDD : {mdd:.3f}%")

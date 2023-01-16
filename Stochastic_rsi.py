@@ -141,8 +141,10 @@ def stocastic_plus_rsi(df,rsi,sto): #stocatsicÏùÄ 'fast_k', 'slow_k', 'slow_d' Ï
 # stocastic = get_stocatsic(df,14,3,3)
 # rsi = fnRSI(df['close'],14)
 # fast_k = stocastic['fast_k']
-# cum_ror, ror_list = stocastic_plus_rsi(df,rsi,fast_k)
-# mdd, dd = utils.get_mdd(ror_list)
+# cum_ror, ror_list, win_rate = stocastic_plus_rsi(df,rsi,fast_k)
+
+
+# mdd, dd = utils.mdd(ror_list)
 # period = utils.tdelta2year(df.index)
 # cagr = utils.cagr(ror_list, period)
 # print(f"--------------------period : {period:.3f} year")
