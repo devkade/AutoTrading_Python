@@ -8,7 +8,7 @@ import numpy as np
 tickers = {"upbit": "KRW-BTC",
            "binance": "BTC/USDT"}
 
-def get_ohlcv(exchange='upbit', ticker = 'KRW-BTC', n=1, target_time=None): #코인의 정보를 불러옴, 500*n개의 정보
+def get_ohlcv(exchange='upbit', ticker = 'KRW-BTC', n=1, timeframe='4h', target_time=None): #코인의 정보를 불러옴, 500*n개의 정보
     dfs = [ ]
     if exchange=='upbit':
         df = pyupbit.get_ohlcv(ticker, interval="minute240", to=target_time)
@@ -23,11 +23,11 @@ def get_ohlcv(exchange='upbit', ticker = 'KRW-BTC', n=1, target_time=None): #코
         if target_time is None:
             last = datetime.datetime.fromtimestamp(binance.milliseconds()/1000)
         else:
-            last = datetime.datetime.strptime(time, '%Y-%m-%d %H:%M:%S')
+            last = datetime.datetime.strptime(target_time, '%Y-%m-%d %H:%M:%S')
         days = datetime.timedelta(days=np.ceil((1000*n)/6))
         back = datetime.datetime.strftime(last-days, '%Y-%m-%d %H:%M:%S')
         since = binance.parse8601(back)
-        df = binance.fetch_ohlcv(ticker, '4h', since=since, limit=1000)
+        df = binance.fetch_ohlcv(ticker, timeframe, since=since, limit=1000)
         df = pd.DataFrame(df, columns=['datetime', 'open', 'high', 'low', 'close', 'volume'])
         df['datetime'] = pd.to_datetime(df['datetime'], unit='ms')
         df.set_index('datetime', inplace=True)
@@ -75,6 +75,6 @@ def win_rate(win_rate: list):
     win_trade = win_rate.count(1)
     return win_trade / num_trade * 100
 
-# df = get_ohlcv('binance', tickers['binance'], 4)
-# print(get_period(df.index))
-# df.to_excel('BINANCE_BTC_4h.xlsx', index=True)
+df = get_ohlcv('binance', tickers['binance'], 4, timeframe="1m", target_time='2023-01-16 00:00:00')
+print(tdelta2year(df.index))
+df.to_excel('BINANCE_BTC_1m_1.xlsx', index=True)

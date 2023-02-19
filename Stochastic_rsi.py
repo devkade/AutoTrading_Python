@@ -104,10 +104,10 @@ def stocastic_plus_rsi(df,rsi,sto): #stocatsic은 'fast_k', 'slow_k', 'slow_d' �
             else:
                 win_rate.append(0)
 
-            print("buy date: ", buy_date)
-            print("sell date: ", sell_date)
-            print("ror:", acc_ror)
-            print("")
+            # print("buy date: ", buy_date)
+            # print("sell date: ", sell_date)
+            # print("ror:", acc_ror)
+            # print("")
     
     # candle = go.Candlestick( #비트코인을 캔들차트로 표현
     #     x = df.index,
@@ -137,13 +137,36 @@ def stocastic_plus_rsi(df,rsi,sto): #stocatsic은 'fast_k', 'slow_k', 'slow_d' �
 #df = pyupbit.get_ohlcv("KRW-BTC")
 #df = get_ohlcv("KRW-BTC")
 #df.to_excel(f"KRW-BTC_4hours.xlsx")
-# df = pd.read_excel(f"BINANCE_BTC_4h.xlsx", index_col=0)    # KRW-BTC_4hours.xlsx
-# stocastic = get_stocatsic(df,14,3,3)
+tickers = ['BTC/USDT', 'ETH/USDT', 'XRP/USDT', 'BNB/USDT', 'LTC/USDT', 'TRX/USDT', 'DASH/USDT']
+for ticker in tickers:
+    df = utils.get_ohlcv('binance', ticker, 4, timeframe='4h', target_time='2023-01-16 16:00:00')
+    print(f"--------------------ticker : {ticker}")
+
+    stocastic = get_stochastic(df,14,3,3)
+    rsi = fnRSI(df['close'],14)
+    fast_k = stocastic['fast_k']
+    slow_d = stocastic['slow_d']
+    slow_k = stocastic['slow_k']
+    cum_ror, ror_list, win_rate = stocastic_plus_rsi(df,rsi,fast_k)
+    mdd, dd = utils.mdd(ror_list)
+    period = utils.tdelta2year(df.index)
+    cagr = utils.cagr(ror_list, period)
+    win_rate = utils.win_rate(ror_list)
+    print(f"--------------------period : {period:.3f} year")
+    print(f"--------------------MDD : {mdd:.3f}%")
+    print(f"--------------------CAGR : {cagr:.3f}%")
+    print(f"--------------------win_rate : {win_rate:.3f}%")
+    print(f"--------------------Overall Trade : {len(ror_list)} 번\n")
+
+
+
+# df = utils.get_ohlcv('binance', 'BTC/USDT', 4, timeframe='4h', target_time='2023-01-16 16:00:00')
+# stocastic = get_stochastic(df,14,3,3)
 # rsi = fnRSI(df['close'],14)
 # fast_k = stocastic['fast_k']
+# slow_d = stocastic['slow_d']
+# slow_k = stocastic['slow_k']
 # cum_ror, ror_list, win_rate = stocastic_plus_rsi(df,rsi,fast_k)
-
-
 # mdd, dd = utils.mdd(ror_list)
 # period = utils.tdelta2year(df.index)
 # cagr = utils.cagr(ror_list, period)
